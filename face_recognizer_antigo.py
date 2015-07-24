@@ -3,6 +3,8 @@
 import cv2, os
 import numpy as np
 import sys
+import matplotlib.pyplot as pyplot
+
 
 # Utilizando Haar Cascade do OpenCV para detectar as faces.
 cascadePath = "haarcascade_frontalface_default.xml"
@@ -100,3 +102,14 @@ log = open(log_path, "w")
 log.write("acertos\n" + str(faces_corretamente_reconhecidas))
 log.write("\nerros\n" + str(faces_INcorretamente_reconhecidas))
 log.close()
+x_list = [1, 3, 6]
+label_list = ["acertos", "whistles", "pasta"]
+
+pyplot.axis("equal")
+pyplot.pie(
+        x_list,
+        labels=label_list,
+        autopct="%1.1f%%"
+        )
+pyplot.title("Visao Geral")
+pyplot.show()

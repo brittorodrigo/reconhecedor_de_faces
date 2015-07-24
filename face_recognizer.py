@@ -3,6 +3,7 @@
 import cv2, os
 import numpy as np
 import sys
+import matplotlib.pyplot as pyplot
 
 # Utilizando Haar Cascade do OpenCV para detectar as faces.
 cascadePath = "haarcascade_frontalface_default.xml"
@@ -96,13 +97,43 @@ for image_path in image_paths:
         cv2.waitKey(1000)
 print "--X--X--X--X--X--X--X--X--X--X--"
 print "Acerto(s): {}\nErro(s) ou (falso positivo): {}".format(faces_corretamente_reconhecidas,
-                                                      faces_Incorretamente_reconhecidas)
+                                                              faces_Incorretamente_reconhecidas)
 print "Rostos nao reconhecidos e que eram pra ser ou (falso negativo): {}".format(
     int(rostos_previamente_verificados) - faces_corretamente_reconhecidas)
-if((faces_Incorretamente_reconhecidas+faces_corretamente_reconhecidas) >0):
-    print "Precisao: {}".format(faces_corretamente_reconhecidas / (faces_corretamente_reconhecidas + faces_Incorretamente_reconhecidas))
+fscore = 0
+if ((faces_Incorretamente_reconhecidas + faces_corretamente_reconhecidas) > 0):
+    print "Precisao: {}".format(
+        (faces_corretamente_reconhecidas+0.0) / (faces_corretamente_reconhecidas + faces_Incorretamente_reconhecidas))
+
+    fscore = (2.0 * faces_corretamente_reconhecidas) / (
+    2 * faces_corretamente_reconhecidas + faces_Incorretamente_reconhecidas + (
+    float(rostos_previamente_verificados) - faces_corretamente_reconhecidas))
+    print "F1 SCORE: {}".format(fscore)
+
 log_path = os.path.join(training_set, training_set + "_log.txt")
 log = open(log_path, "w")
 log.write("acertos\n" + str(faces_corretamente_reconhecidas))
 log.write("\nerros\n" + str(faces_Incorretamente_reconhecidas))
 log.close()
+
+x_list = [fscore]
+label_list = ["F1 Score"]
+pyplot.subplot(2, 1, 1)
+
+pyplot.axis("equal")
+pyplot.pie(
+    x_list,
+    labels=label_list,
+    autopct="%1.1f%%"
+)
+pyplot.title("Visao Geral")
+y = [faces_corretamente_reconhecidas, faces_Incorretamente_reconhecidas,
+          int(rostos_previamente_verificados) - faces_corretamente_reconhecidas]
+N = len(y)
+x = range(N)
+width = 1/1.5
+pyplot.subplot(2, 1, 2)
+
+pyplot.bar(x, y, width, color="blue",align='center')
+pyplot.xticks(y,["acerto","erro","falso negativo"])
+pyplot.show()

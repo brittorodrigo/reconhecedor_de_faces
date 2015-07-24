@@ -1,9 +1,9 @@
 # reconhecedor_de_faces
 - Exemplo de como executar o programa:
-   python face_recognizer.py bdangelina
+   python face_recognizer.py bdangelina 5
 
 - O programa recebe como parâmetro o nome do diretório que contém as fotos das pessoas que serão usadas
-para treinar o classificador.
+para treinar o classificador e logo depois a quantidade de fotos com o rosto da pessoa nela.
 - O diretótiro "bdtest" possui fotos de diferentes pessoas (que foram treinadas ou não), e o classificador
 deve identificar nessas fotos , com um determinado nível de confiança, uma determinada pessoa que foi usada 
 para treiná-lo.
