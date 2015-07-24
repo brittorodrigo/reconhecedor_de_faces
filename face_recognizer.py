@@ -94,12 +94,13 @@ for image_path in image_paths:
             cv2.rectangle(face_a_ser_reconhecida, (x, y), (x + w, y + h), (0, 255, 0), 2)
             cv2.imshow("Face incorretamente reconhecida", face_a_ser_reconhecida)
         cv2.waitKey(1000)
-print "acertos: {}\nerros:(falso positivo) {}".format(faces_corretamente_reconhecidas,
+print "--X--X--X--X--X--X--X--X--X--X--"
+print "Acerto(s): {}\nErro(s) ou (falso positivo): {}".format(faces_corretamente_reconhecidas,
                                                       faces_Incorretamente_reconhecidas)
-print "rostos nao reconhecidos e que eram pra ser:(falso negativo) {}".format(
+print "Rostos nao reconhecidos e que eram pra ser ou (falso negativo): {}".format(
     int(rostos_previamente_verificados) - faces_corretamente_reconhecidas)
-print "precisao: {}".format(
-    faces_corretamente_reconhecidas / (faces_corretamente_reconhecidas + faces_Incorretamente_reconhecidas))
+if((faces_Incorretamente_reconhecidas+faces_corretamente_reconhecidas) >0):
+    print "Precisao: {}".format(faces_corretamente_reconhecidas / (faces_corretamente_reconhecidas + faces_Incorretamente_reconhecidas))
 log_path = os.path.join(training_set, training_set + "_log.txt")
 log = open(log_path, "w")
 log.write("acertos\n" + str(faces_corretamente_reconhecidas))
