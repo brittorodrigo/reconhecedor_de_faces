@@ -40,7 +40,7 @@ def get_images_and_labels(path):
         # Detectar a face na Imagem.
         faces = faceCascade.detectMultiScale(
             imagem_arrayNumPY,
-            scaleFactor=1.2,
+            scaleFactor=1.1,
             minNeighbors=5,
             minSize=(30, 30),
             flags=cv2.cv.CV_HAAR_SCALE_IMAGE)
@@ -72,7 +72,7 @@ for image_path in image_paths:
     face_a_ser_reconhecida_tons_cinza = cv2.cvtColor(face_a_ser_reconhecida, cv2.COLOR_BGR2GRAY)
     face_a_ser_reconhecida_numPyArray = np.array(face_a_ser_reconhecida_tons_cinza, 'uint8')
     faces = faceCascade.detectMultiScale(face_a_ser_reconhecida_numPyArray,
-                                         scaleFactor=1.2,
+                                         scaleFactor=1.1,
                                          minNeighbors=5,
                                          minSize=(30, 30),
                                          flags=cv2.cv.CV_HAAR_SCALE_IMAGE)
@@ -90,7 +90,6 @@ for image_path in image_paths:
             print "{} eh incorretamente reconhecido como {} com nivel de confianca {}".format(nbr_actual,
                                                                                               nbr_predicted2,
                                                                                               100 - conf)
-            print conf
             faces_Incorretamente_reconhecidas += 1
             cv2.rectangle(face_a_ser_reconhecida, (x, y), (x + w, y + h), (0, 255, 0), 2)
             cv2.imshow("Face incorretamente reconhecida", face_a_ser_reconhecida)
@@ -135,5 +134,5 @@ width = 1/1.5
 pyplot.subplot(2, 1, 2)
 
 pyplot.bar(x, y, width, color="blue",align='center')
-pyplot.xticks(y,["acerto","erro","falso negativo"])
+pyplot.xticks(x,["Acertos","Falsos Positivos","Falsos Negativos"])
 pyplot.show()
