@@ -37,8 +37,12 @@ def get_images_and_labels(path):
         imagem_de_entrada = cv2.imread(image_path)
         # Converter a imagem para tons de cinza
         imagem_tons_de_cinza = cv2.cvtColor(imagem_de_entrada, cv2.COLOR_BGR2GRAY)
+        #equalizar o histograma
+
+        imagem_tons_de_cinza_equalizada = cv2.equalizeHist(imagem_tons_de_cinza)
+
         # Criando um Numpy Array
-        imagem_array = np.array(imagem_tons_de_cinza, 'uint8')
+        imagem_array = np.array(imagem_tons_de_cinza_equalizada, 'uint8')
         # Obtendo o rotulo da image(ID)
         rotulo = int(os.path.split(image_path)[1].split(".")[1])
         # Detectar a face na Imagem.
@@ -93,7 +97,11 @@ faces_Incorretamente_reconhecidas = 0
 for image_path in image_paths:
     face_a_ser_reconhecida = cv2.imread(image_path)
     face_a_ser_reconhecida_tons_cinza = cv2.cvtColor(face_a_ser_reconhecida, cv2.COLOR_BGR2GRAY)
-    face_a_ser_reconhecida_numPyArray = np.array(face_a_ser_reconhecida_tons_cinza, 'uint8')
+       #equalizar o histograma
+
+    face_tons_de_cinza_equalizada = cv2.equalizeHist(face_a_ser_reconhecida_tons_cinza)
+
+    face_a_ser_reconhecida_numPyArray = np.array(face_tons_de_cinza_equalizada, 'uint8')
     faces = faceCascade.detectMultiScale(face_a_ser_reconhecida_numPyArray,
                                          scaleFactor=1.1,
                                          minNeighbors=5,
@@ -105,13 +113,13 @@ for image_path in image_paths:
 	#cv2.imshow("face recortada", face)
         rotulo_classificado, conf = recognizer.predict(face)
         rotulo_real = int(os.path.split(image_path)[1].split(".")[1])
-        if rotulo_real == rotulo_classificado and conf <= 90:
+        if rotulo_real == rotulo_classificado and conf <= 40:
             true_confidence = 100 - conf;
             print "{} eh corretamente reconhecido com nivel de confianca {:.2f}%".format(rotulo_real, true_confidence)
             cv2.rectangle(face_a_ser_reconhecida, (x, y), (x + w, y + h), (0, 255, 0), 2)
             faces_corretamente_reconhecidas += 1
             cv2.imshow("Face reconhecida", face_a_ser_reconhecida)
-        elif rotulo_real != rotulo_classificado and conf <= 10:
+        elif rotulo_real != rotulo_classificado and conf <= 40:
             print "{} eh incorretamente reconhecido como {} com nivel de confianca {:.2f}%".format(rotulo_real,
                                                                                               rotulo_classificado,
                                                                                               100 - conf)
