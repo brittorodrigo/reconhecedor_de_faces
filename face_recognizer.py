@@ -37,17 +37,10 @@ def get_images_and_labels(path):
         imagem_de_entrada = cv2.imread(image_path)
         # Converter a imagem para tons de cinza
         imagem_tons_de_cinza = cv2.cvtColor(imagem_de_entrada, cv2.COLOR_BGR2GRAY)
-        imagem_tons_de_cinza_equalizada = cv2.equalizeHist(imagem_tons_de_cinza)
         # Criando um Numpy Array
-<<<<<<< HEAD
-        imagem_arrayNumPY = np.array(imagem_tons_de_cinza_equalizada, 'uint8')
-        # Obtendo o rotulo da imagem, ID
-        nbr = int(os.path.split(image_path)[1].split(".")[1])
-=======
         imagem_array = np.array(imagem_tons_de_cinza, 'uint8')
         # Obtendo o rotulo da image(ID)
         rotulo = int(os.path.split(image_path)[1].split(".")[1])
->>>>>>> origin/master
         # Detectar a face na Imagem.
         faces = faceCascade.detectMultiScale(
             imagem_array,
@@ -100,34 +93,26 @@ faces_Incorretamente_reconhecidas = 0
 for image_path in image_paths:
     face_a_ser_reconhecida = cv2.imread(image_path)
     face_a_ser_reconhecida_tons_cinza = cv2.cvtColor(face_a_ser_reconhecida, cv2.COLOR_BGR2GRAY)
-    face_a_ser_reconhecida_tons_cinza_equalizada = cv2.equalizeHist(face_a_ser_reconhecida_tons_cinza)
-    face_a_ser_reconhecida_numPyArray = np.array(face_a_ser_reconhecida_tons_cinza_equalizada, 'uint8')
+    face_a_ser_reconhecida_numPyArray = np.array(face_a_ser_reconhecida_tons_cinza, 'uint8')
     faces = faceCascade.detectMultiScale(face_a_ser_reconhecida_numPyArray,
-                                         scaleFactor=1.3,
+                                         scaleFactor=1.1,
                                          minNeighbors=5,
-                                         minSize=(40, 40),
+                                         minSize=(30, 30),
                                          flags=cv2.cv.CV_HAAR_SCALE_IMAGE)
     for (x, y, w, h) in faces:
-<<<<<<< HEAD
-        nbr_predicted2, conf = recognizer.predict(face_a_ser_reconhecida_numPyArray[y: y + h, x: x + w])
-        nbr_actual = int(os.path.split(image_path)[1].split(".")[1])
-        # threshold = 100
-        if nbr_actual == nbr_predicted2 and conf <= 40:
-=======
 	#Para Eigen Recognizer e preciso redimensionar as faces para o mesmo tamanho 
 	face = recortar_face(face_a_ser_reconhecida_numPyArray,x,y,w,h)
 	#cv2.imshow("face recortada", face)
         rotulo_classificado, conf = recognizer.predict(face)
         rotulo_real = int(os.path.split(image_path)[1].split(".")[1])
         if rotulo_real == rotulo_classificado and conf <= 90:
->>>>>>> origin/master
             true_confidence = 100 - conf;
-            print "{} eh corretamente reconhecido com nivel de confianca {}".format(rotulo_real, true_confidence)
+            print "{} eh corretamente reconhecido com nivel de confianca {:.2f}%".format(rotulo_real, true_confidence)
             cv2.rectangle(face_a_ser_reconhecida, (x, y), (x + w, y + h), (0, 255, 0), 2)
             faces_corretamente_reconhecidas += 1
             cv2.imshow("Face reconhecida", face_a_ser_reconhecida)
         elif rotulo_real != rotulo_classificado and conf <= 10:
-            print "{} eh incorretamente reconhecido como {} com nivel de confianca {}".format(rotulo_real,
+            print "{} eh incorretamente reconhecido como {} com nivel de confianca {:.2f}%".format(rotulo_real,
                                                                                               rotulo_classificado,
                                                                                               100 - conf)
             faces_Incorretamente_reconhecidas += 1
