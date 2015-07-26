@@ -4,12 +4,13 @@ import cv2, os
 import numpy as np
 import sys
 import matplotlib.pyplot as pyplot
+from PIL import Image
 
 
-
-# Validacao do formato da imagem aceita; eh valido png,jpeg,jpg.
+# Validacao do formato da imagem aceita; eh valido png,jpeg,jpg,gif.
 def eh_imagem_valida(image_name):
-    if (image_name.endswith('.jpg') or image_name.endswith('.jpeg') or image_name.endswith('.png')):
+    if (image_name.endswith('.jpg') or image_name.endswith('.jpeg') or image_name.endswith('.png')
+    or image_name.endswith('.gif')):
         return True
     return False
 
@@ -34,32 +35,34 @@ def get_images_and_labels(path):
     for image_path in image_paths:
         print image_path
         # Ler a imagem.
-        imagem_de_entrada = cv2.imread(image_path)
-        # Converter a imagem para tons de cinza
-        imagem_tons_de_cinza = cv2.cvtColor(imagem_de_entrada, cv2.COLOR_BGR2GRAY)
-        #equalizar o histograma
-
-        imagem_tons_de_cinza_equalizada = cv2.equalizeHist(imagem_tons_de_cinza)
-
+	if(image_path.endswith('.gif')):
+		imagem_de_entrada = Image.open(image_path)
+		imagem_tons_de_cinza  = imagem_de_entrada.convert('L')	
+	else:
+        	imagem_de_entrada = cv2.imread(image_path)
+        	# Converter a imagem para tons de cinza
+		imagem_tons_de_cinza = cv2.cvtColor(imagem_de_entrada, cv2.COLOR_BGR2GRAY)
+        	#equalizar o histograma
+       		imagem_tons_de_cinza = cv2.equalizeHist(imagem_tons_de_cinza)
         # Criando um Numpy Array
-        imagem_array = np.array(imagem_tons_de_cinza_equalizada, 'uint8')
+        imagem_array = np.array(imagem_tons_de_cinza, 'uint8')
         # Obtendo o rotulo da image(ID)
         rotulo = int(os.path.split(image_path)[1].split(".")[1])
         # Detectar a face na Imagem.
         faces = faceCascade.detectMultiScale(
             imagem_array,
             scaleFactor=1.3,
-            minNeighbors=5,
+            minNeighbors=4,
             minSize=(30, 30),
             flags=cv2.cv.CV_HAAR_SCALE_IMAGE)
         # Se alguma face for encontrada, guardar a face e seu respectivo rotulo (id)
         for (x, y, w, h) in faces:
 	     #Para Eigen Recognizer e preciso redimensionar as faces para o mesmo tamanho 
-                 face = recortar_face(imagem_array,x,y,w,h)
-                 images.append(face)
-                 labels.append(rotulo)
-        cv2.rectangle(imagem_de_entrada, (x, y), (x + w, y + h), (0, 255, 0), 2)
-        cv2.imshow("Face reconhecida e aprendida", imagem_de_entrada)
+                face = recortar_face(imagem_array,x,y,w,h)
+                images.append(face)
+                labels.append(rotulo)
+        	#cv2.rectangle(imagem_array, (x, y), (x + w, y + h), (0, 255, 0), 2)
+        	#cv2.imshow("Face reconhecida e aprendida", imagem_array)
         cv2.waitKey(1000)
 
     return images, labels
@@ -98,37 +101,43 @@ faces_corretamente_reconhecidas = 0
 faces_Incorretamente_reconhecidas = 0
 for image_path in image_paths:
     print image_path
-
-    face_a_ser_reconhecida = cv2.imread(image_path)
-    face_a_ser_reconhecida_tons_cinza = cv2.cvtColor(face_a_ser_reconhecida, cv2.COLOR_BGR2GRAY)
-       #equalizar o histograma
-
-    face_tons_de_cinza_equalizada = cv2.equalizeHist(face_a_ser_reconhecida_tons_cinza)
+     
+    if(image_path.endswith('.gif')):
+	imagem_tons_de_cinza  = Image.open(image_path).convert('L')
+	face_tons_de_cinza_equalizada = imagem_tons_de_cinza 	
+    else:
+    	face_a_ser_reconhecida = cv2.imread(image_path)
+    	face_a_ser_reconhecida_tons_cinza = cv2.cvtColor(face_a_ser_reconhecida, cv2.COLOR_BGR2GRAY)
+        #equalizar o histograma
+   	face_tons_de_cinza_equalizada = cv2.equalizeHist(face_a_ser_reconhecida_tons_cinza)
 
     face_a_ser_reconhecida_numPyArray = np.array(face_tons_de_cinza_equalizada, 'uint8')
     faces = faceCascade.detectMultiScale(face_a_ser_reconhecida_numPyArray,
                                          scaleFactor=1.3,
-                                         minNeighbors=5,
+                                         minNeighbors=4,
                                          minSize=(30, 30),
                                          flags=cv2.cv.CV_HAAR_SCALE_IMAGE)
     for (x, y, w, h) in faces:
-        cv2.rectangle(face_a_ser_reconhecida, (x, y), (x + w, y + h), (0, 255, 0), 2)
-        cv2.imshow("face detectada do bdtest", face_a_ser_reconhecida)
-        cv2.waitKey(1000)
+        #cv2.rectangle(face_a_ser_reconhecida, (x, y), (x + w, y + h), (0, 255, 0), 2)
+        #cv2.imshow("face detectada do bdtest", face_a_ser_reconhecida)
+        #cv2.waitKey(1000)
 
 	    #Para Eigen Recognizer e preciso redimensionar as faces para o mesmo tamanho
         face = recortar_face(face_a_ser_reconhecida_numPyArray,x,y,w,h)
 	    #cv2.imshow("face recortada", face)
         rotulo_classificado, conf = recognizer.predict(face)
         rotulo_real = int(os.path.split(image_path)[1].split(".")[1])
-        if rotulo_real == rotulo_classificado and conf <= 40:
-            true_confidence = 100 - conf;
-            print "{} eh corretamente reconhecido com nivel de confianca {:.2f}%".format(rotulo_real, true_confidence)
+	threshold = 60
+        if rotulo_real == rotulo_classificado and conf <= threshold:
+            true_confidence = 100 - conf
+            print "{} eh corretamente reconhecido com nivel de confianca {:.2f}".format(rotulo_real, true_confidence)
+	    if(image_path.endswith('.gif')):
+		face_a_ser_reconhecida = face_a_ser_reconhecida_numPyArray
             cv2.rectangle(face_a_ser_reconhecida, (x, y), (x + w, y + h), (0, 255, 0), 2)
             faces_corretamente_reconhecidas += 1
             cv2.imshow("Face reconhecida", face_a_ser_reconhecida)
-        elif rotulo_real != rotulo_classificado and conf <= 40:
-            print "{} eh incorretamente reconhecido como {} com nivel de confianca {:.2f}%".format(rotulo_real,
+        elif rotulo_real != rotulo_classificado and conf <= threshold:
+            print "{} eh incorretamente reconhecido como {} com nivel de confianca {:.2f}".format(rotulo_real,
                                                                                               rotulo_classificado,
                                                                                               100 - conf)
             faces_Incorretamente_reconhecidas += 1
@@ -147,8 +156,9 @@ if ((faces_Incorretamente_reconhecidas + faces_corretamente_reconhecidas) > 0):
     print "Precisao: {}".format(precisao)
     recall = (faces_corretamente_reconhecidas+0.0)/(faces_corretamente_reconhecidas + falsos_negativos)
     print "Recall: {}".format(recall)
-
-    fscore = 2.0*((precisao * recall)/(precisao + recall))
+    fscore = 0
+    if(precisao + recall > 0):
+    	fscore = 2.0*((precisao * recall)/(precisao + recall))
     print "F1 SCORE: {}".format(fscore)
 
 log_path = os.path.join(training_set, training_set + "_log.txt")
