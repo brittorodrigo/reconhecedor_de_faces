@@ -48,18 +48,20 @@ def get_images_and_labels(path):
         # Detectar a face na Imagem.
         faces = faceCascade.detectMultiScale(
             imagem_array,
-            scaleFactor=1.1,
+            scaleFactor=1.3,
             minNeighbors=5,
             minSize=(30, 30),
             flags=cv2.cv.CV_HAAR_SCALE_IMAGE)
         # Se alguma face for encontrada, guardar a face e seu respectivo rotulo (id)
         for (x, y, w, h) in faces:
 	     #Para Eigen Recognizer e preciso redimensionar as faces para o mesmo tamanho 
-	    face = recortar_face(imagem_array,x,y,w,h)
-            images.append(face)
-            labels.append(rotulo)
-            # cv2.imshow("Adding faces to traning set...", image[y: y + h, x: x + w])
-            cv2.waitKey(50)
+                 face = recortar_face(imagem_array,x,y,w,h)
+                 images.append(face)
+                 labels.append(rotulo)
+        cv2.rectangle(imagem_de_entrada, (x, y), (x + w, y + h), (0, 255, 0), 2)
+        cv2.imshow("Face reconhecida e aprendida", imagem_de_entrada)
+        cv2.waitKey(1000)
+
     return images, labels
 
 def escolher_recognizer(parametro):
@@ -91,10 +93,12 @@ cv2.destroyAllWindows()
 recognizer.train(images, np.array(labels))
 
 path = './bdtest'
-image_paths = [os.path.join(path, f) for f in os.listdir(path)]
+image_paths = [os.path.join(path, f) for f in os.listdir(path) if  eh_imagem_valida(f) ]
 faces_corretamente_reconhecidas = 0
 faces_Incorretamente_reconhecidas = 0
 for image_path in image_paths:
+    print image_path
+
     face_a_ser_reconhecida = cv2.imread(image_path)
     face_a_ser_reconhecida_tons_cinza = cv2.cvtColor(face_a_ser_reconhecida, cv2.COLOR_BGR2GRAY)
        #equalizar o histograma
@@ -103,14 +107,18 @@ for image_path in image_paths:
 
     face_a_ser_reconhecida_numPyArray = np.array(face_tons_de_cinza_equalizada, 'uint8')
     faces = faceCascade.detectMultiScale(face_a_ser_reconhecida_numPyArray,
-                                         scaleFactor=1.1,
+                                         scaleFactor=1.3,
                                          minNeighbors=5,
                                          minSize=(30, 30),
                                          flags=cv2.cv.CV_HAAR_SCALE_IMAGE)
     for (x, y, w, h) in faces:
-	#Para Eigen Recognizer e preciso redimensionar as faces para o mesmo tamanho 
-	face = recortar_face(face_a_ser_reconhecida_numPyArray,x,y,w,h)
-	#cv2.imshow("face recortada", face)
+        cv2.rectangle(face_a_ser_reconhecida, (x, y), (x + w, y + h), (0, 255, 0), 2)
+        cv2.imshow("face detectada do bdtest", face_a_ser_reconhecida)
+        cv2.waitKey(1000)
+
+	    #Para Eigen Recognizer e preciso redimensionar as faces para o mesmo tamanho
+        face = recortar_face(face_a_ser_reconhecida_numPyArray,x,y,w,h)
+	    #cv2.imshow("face recortada", face)
         rotulo_classificado, conf = recognizer.predict(face)
         rotulo_real = int(os.path.split(image_path)[1].split(".")[1])
         if rotulo_real == rotulo_classificado and conf <= 40:
