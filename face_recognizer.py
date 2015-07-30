@@ -71,7 +71,19 @@ def escolher_recognizer(parametro):
 	if(parametro == 1):
 		return cv2.createLBPHFaceRecognizer()
 	elif(parametro == 2):
-		return cv2.createEigenFaceRecognizer()				
+		return cv2.createEigenFaceRecognizer()	
+
+def plotar_pie(porcentagem, legenda):
+	x_list = [porcentagem]
+	label_list = [legenda]
+	pyplot.subplot(2, 1, 1)
+
+	pyplot.axis("equal")
+	pyplot.pie(
+	    x_list,
+	    labels=label_list,
+	    autopct="%1.1f%%"
+	)			
 
 
 
@@ -135,7 +147,7 @@ for image_path in image_paths:
 		face_a_ser_reconhecida = face_a_ser_reconhecida_numPyArray
             cv2.rectangle(face_a_ser_reconhecida, (x, y), (x + w, y + h), (0, 255, 0), 2)
             faces_corretamente_reconhecidas += 1
-            cv2.imshow("Face reconhecida", face_a_ser_reconhecida)
+            cv2.imshow("Face corretamente reconhecida", face_a_ser_reconhecida)
         elif rotulo_real != rotulo_classificado and conf <= threshold:
             print "{} eh incorretamente reconhecido como {} com nivel de confianca {:.2f}".format(rotulo_real,
                                                                                               rotulo_classificado,
@@ -147,8 +159,8 @@ for image_path in image_paths:
 
 falsos_negativos = int(faces_reconhecidas_esperadas) - faces_corretamente_reconhecidas
 print "--X--X--X--X--X--X--X--X--X--X--"
-print "Acerto(s): {}\nErro(s) ou (falso positivo): {}".format(faces_corretamente_reconhecidas,faces_Incorretamente_reconhecidas)
-print "Rostos nao reconhecidos e que eram pra ser ou (falso negativo): {}".format(falsos_negativos)
+print "Acerto(s): {}\nErro(s) ou (falsos positivos): {}".format(faces_corretamente_reconhecidas,faces_Incorretamente_reconhecidas)
+print "Faces nao reconhecias e que deveriam ser (falsos negativos): {}".format(falsos_negativos)
 fscore = 0
 if ((faces_Incorretamente_reconhecidas + faces_corretamente_reconhecidas) > 0):
 
@@ -159,7 +171,7 @@ if ((faces_Incorretamente_reconhecidas + faces_corretamente_reconhecidas) > 0):
     fscore = 0
     if(precisao + recall > 0):
     	fscore = 2.0*((precisao * recall)/(precisao + recall))
-    print "F1 SCORE: {}".format(fscore)
+    print "F-measure: {}".format(fscore)
 
 log_path = os.path.join(training_set, training_set + "_log.txt")
 log = open(log_path, "w")
@@ -167,19 +179,10 @@ log.write("acertos\n" + str(faces_corretamente_reconhecidas))
 log.write("\nerros\n" + str(faces_Incorretamente_reconhecidas))
 log.close()
 
-x_list = [fscore]
-label_list = ["F1 Score"]
-pyplot.subplot(2, 1, 1)
+plotar_pie(fscore, "F-measure")
 
-pyplot.axis("equal")
-pyplot.pie(
-    x_list,
-    labels=label_list,
-    autopct="%1.1f%%"
-)
 pyplot.title("Visao Geral")
-y = [faces_corretamente_reconhecidas, faces_Incorretamente_reconhecidas,
-          int(faces_reconhecidas_esperadas) - faces_corretamente_reconhecidas]
+y = [faces_corretamente_reconhecidas, faces_Incorretamente_reconhecidas,falsos_negativos]
 N = len(y)
 x = range(N)
 width = 1/1.5
