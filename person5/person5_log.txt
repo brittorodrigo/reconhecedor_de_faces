@@ -1,4 +1,4 @@
 acertos
-3
+1
 erros
 0

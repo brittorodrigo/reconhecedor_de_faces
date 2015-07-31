@@ -33,7 +33,7 @@ def get_images_and_labels(path):
     # rotulo da imagem
     labels = []
     for image_path in image_paths:
-        print image_path
+        #print image_path
         # Ler a imagem.
 	if(image_path.endswith('.gif')):
 		imagem_de_entrada = Image.open(image_path)
@@ -112,7 +112,7 @@ image_paths = [os.path.join(path, f) for f in os.listdir(path) if  eh_imagem_val
 faces_corretamente_reconhecidas = 0
 faces_Incorretamente_reconhecidas = 0
 for image_path in image_paths:
-    print image_path
+    #print image_path
      
     if(image_path.endswith('.gif')):
 	imagem_tons_de_cinza  = Image.open(image_path).convert('L')
@@ -161,17 +161,18 @@ falsos_negativos = int(faces_reconhecidas_esperadas) - faces_corretamente_reconh
 print "--X--X--X--X--X--X--X--X--X--X--"
 print "Acerto(s): {}\nErro(s) ou (falsos positivos): {}".format(faces_corretamente_reconhecidas,faces_Incorretamente_reconhecidas)
 print "Faces nao reconhecias e que deveriam ser (falsos negativos): {}".format(falsos_negativos)
-fscore = 0
+fscore = precisao = recall = 0
 if ((faces_Incorretamente_reconhecidas + faces_corretamente_reconhecidas) > 0):
 
     precisao =  (faces_corretamente_reconhecidas+0.0) / (faces_corretamente_reconhecidas + faces_Incorretamente_reconhecidas)
-    print "Precisao: {}".format(precisao)
     recall = (faces_corretamente_reconhecidas+0.0)/(faces_corretamente_reconhecidas + falsos_negativos)
-    print "Recall: {}".format(recall)
     fscore = 0
     if(precisao + recall > 0):
     	fscore = 2.0*((precisao * recall)/(precisao + recall))
-    print "F-measure: {}".format(fscore)
+
+print "Precisao: {:.2f}%".format(precisao * 100)
+print "Recall: {:.2f}%".format(recall * 100)
+print "F-measure: {:.2f}%".format(fscore * 100)
 
 log_path = os.path.join(training_set, training_set + "_log.txt")
 log = open(log_path, "w")
